@@ -11,7 +11,7 @@
                    report-to csp-endpoint">
     
     <!-- Fix the URL format for GitHub raw content -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/runyuany/CSP-validation@main/styles/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/runyuany/CSP-validation@db3019b/styles/main.css">
     
     <!-- Fallback inline styles that will help identify if external CSS failed to load -->
     <style>
@@ -45,7 +45,7 @@
     <p>This page tests if CSS from an external domain is blocked when the CSP doesn't explicitly define style-src or default-src.</p>
     
     <div id="test-element">
-        Testing CSP for CSS - If the external CSS loads successfully, this div should have a green background with 15px padding.
+        Testing CSP for CSS - If the external CSS loads successfully, this div will have a purple-blue gradient background.
     </div>
     
     <div class="test-result css-loaded" id="css-success">
@@ -60,8 +60,9 @@
         <h3>Test Information:</h3>
         <ul>
             <li>CSP Policy: <code>default-src 'self'; script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123'; style-src 'self' 'unsafe-inline' https:; report-to csp-endpoint</code></li>
-            <li>External CSS: <code id="css-url">https://cdn.jsdelivr.net/gh/runyuany/CSP-validation@main/styles/main.css</code></li>
+            <li>External CSS: <code id="css-url">https://cdn.jsdelivr.net/gh/runyuany/CSP-validation@db3019b/styles/main.css</code></li>
             <li>User Agent: <span id="user-agent">(will be displayed by script)</span></li>
+            <li>CSS Verification: <span id="css-details">Pending check...</span></li>
         </ul>
     </div>
     
@@ -74,20 +75,33 @@
         // Display actual CSS URL being used
         document.getElementById('css-url').textContent = document.querySelector('link[rel="stylesheet"]').href;
         
-        // Check if external CSS was loaded by checking computed styles
+        // Enhanced check for external CSS loading
         window.addEventListener('load', function() {
             const testElement = document.getElementById('test-element');
             const computedStyle = window.getComputedStyle(testElement);
+            const detailsElement = document.getElementById('css-details');
             
-            if (computedStyle.backgroundColor === 'rgb(144, 238, 144)' || // lightgreen
-                computedStyle.backgroundColor === 'rgb(173, 255, 47)') {  // alternative value for lightgreen
+            // Check multiple distinctive properties
+            const hasPurpleBackground = computedStyle.backgroundColor.includes('142') && 
+                                       computedStyle.backgroundColor.includes('68') && 
+                                       computedStyle.backgroundColor.includes('173');
+            const hasDashedBorder = computedStyle.borderStyle === 'dashed';
+            const hasGradient = computedStyle.backgroundImage.includes('linear-gradient');
+            const hasTransform = computedStyle.transform.includes('rotate');
+            
+            if (hasPurpleBackground && hasDashedBorder && hasGradient) {
                 document.getElementById('css-success').style.display = 'block';
                 document.getElementById('css-failed').style.display = 'none';
-                console.log('External CSS loaded successfully');
+                console.log('External CSS loaded successfully - multiple properties verified');
+                detailsElement.innerHTML = '<span style="color:green">✓ VERIFIED</span> - Multiple distinctive CSS properties confirmed';
             } else {
                 console.log('External CSS failed to load or was blocked');
-                console.log('Background color is: ' + computedStyle.backgroundColor);
-                console.log('Padding is: ' + computedStyle.padding);
+                console.log('Background color:', computedStyle.backgroundColor);
+                console.log('Border style:', computedStyle.borderStyle);
+                console.log('Background image:', computedStyle.backgroundImage);
+                console.log('Transform:', computedStyle.transform);
+                
+                detailsElement.innerHTML = '<span style="color:red">✗ FAILED</span> - CSS properties not applied';
                 
                 // Check network errors
                 const links = document.querySelectorAll('link[rel="stylesheet"]');
