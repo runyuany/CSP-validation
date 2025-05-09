@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSP Testing for Edge MiniCanvas</title>
-    <meta http-equiv="Content-Security-Policy" content="script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123'; style-src https: * 'unsafe-inline'; report-to csp-endpoint">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123';
+                   style-src 'self' 'unsafe-inline' https:;
+                   report-to csp-endpoint">
     
-    <!-- External CSS from a different origin -->
-    <link rel="stylesheet" href="https://raw.githubusercontent.com/runyuany/CSP-validation/refs/heads/main/styles/main.css">
+    <!-- Fix the URL format for GitHub raw content -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/runyuany/CSP-validation@main/styles/main.css">
     
     <!-- Fallback inline styles that will help identify if external CSS failed to load -->
     <style>
@@ -55,8 +59,8 @@
     <div class="test-information">
         <h3>Test Information:</h3>
         <ul>
-            <li>CSP Policy: <code>script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123'; style-src https: * 'unsafe-inline'; report-to csp-endpoint</code></li>
-            <li>External CSS: <code id="css-url">https://raw.githubusercontent.com/runyuany/CSP-validation/refs/heads/main/styles/main.css</code></li>
+            <li>CSP Policy: <code>default-src 'self'; script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123'; style-src 'self' 'unsafe-inline' https:; report-to csp-endpoint</code></li>
+            <li>External CSS: <code id="css-url">https://cdn.jsdelivr.net/gh/runyuany/CSP-validation@main/styles/main.css</code></li>
             <li>User Agent: <span id="user-agent">(will be displayed by script)</span></li>
         </ul>
     </div>
@@ -83,6 +87,13 @@
             } else {
                 console.log('External CSS failed to load or was blocked');
                 console.log('Background color is: ' + computedStyle.backgroundColor);
+                console.log('Padding is: ' + computedStyle.padding);
+                
+                // Check network errors
+                const links = document.querySelectorAll('link[rel="stylesheet"]');
+                links.forEach(link => {
+                    console.log('CSS link status:', link.href);
+                });
             }
         });
     </script>
