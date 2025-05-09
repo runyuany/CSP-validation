@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSP Testing for Edge MiniCanvas</title>
-    <meta http-equiv="Content-Security-Policy" content="script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123'; report-to csp-endpoint">
+    <meta http-equiv="Content-Security-Policy" content="script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123'; style-src https: * 'unsafe-inline'; report-to csp-endpoint">
     
     <!-- External CSS from a different origin -->
-    <link rel="stylesheet" href="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/styles/main.css">
+    <link rel="stylesheet" href="https://raw.githubusercontent.com/runyuany/CSP-validation/refs/heads/main/styles/main.css">
     
     <!-- Fallback inline styles that will help identify if external CSS failed to load -->
     <style>
@@ -55,8 +55,8 @@
     <div class="test-information">
         <h3>Test Information:</h3>
         <ul>
-            <li>CSP Policy: <code>script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123'; report-to csp-endpoint</code></li>
-            <li>External CSS: <code id="css-url">https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/styles/main.css</code></li>
+            <li>CSP Policy: <code>script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123'; style-src https: * 'unsafe-inline'; report-to csp-endpoint</code></li>
+            <li>External CSS: <code id="css-url">https://raw.githubusercontent.com/runyuany/CSP-validation/refs/heads/main/styles/main.css</code></li>
             <li>User Agent: <span id="user-agent">(will be displayed by script)</span></li>
         </ul>
     </div>
