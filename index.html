@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSP Testing for Edge MiniCanvas</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123'; report-to csp-endpoint">
+    
+    <!-- External CSS from a different origin -->
+    <link rel="stylesheet" href="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/styles/main.css">
+    
+    <!-- Fallback inline styles that will help identify if external CSS failed to load -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #test-element {
+            border: 1px solid #ccc;
+            margin: 20px 0;
+            padding: 5px;
+            background-color: #f5f5f5; /* This will be overridden by external CSS if it loads */
+        }
+        .test-result {
+            margin-top: 30px;
+            font-weight: bold;
+        }
+        .css-loaded {
+            color: green;
+            display: none;
+        }
+        .css-blocked {
+            color: red;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>CSP Testing Page for Edge MiniCanvas</h1>
+    
+    <p>This page tests if CSS from an external domain is blocked when the CSP doesn't explicitly define style-src or default-src.</p>
+    
+    <div id="test-element">
+        Testing CSP for CSS - If the external CSS loads successfully, this div should have a green background with 15px padding.
+    </div>
+    
+    <div class="test-result css-loaded" id="css-success">
+        ✅ SUCCESS: External CSS was loaded successfully from a different origin.
+    </div>
+    
+    <div class="test-result css-blocked" id="css-failed">
+        ❌ FAILED: External CSS from a different origin was blocked. Check console for CSP violations.
+    </div>
+    
+    <div class="test-information">
+        <h3>Test Information:</h3>
+        <ul>
+            <li>CSP Policy: <code>script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123'; report-to csp-endpoint</code></li>
+            <li>External CSS: <code id="css-url">https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/styles/main.css</code></li>
+            <li>User Agent: <span id="user-agent">(will be displayed by script)</span></li>
+        </ul>
+    </div>
+    
+    <script nonce="staticTestNonce123">
+        console.log('Inline script with nonce executed successfully.');
+        
+        // Display user agent
+        document.getElementById('user-agent').textContent = navigator.userAgent;
+        
+        // Display actual CSS URL being used
+        document.getElementById('css-url').textContent = document.querySelector('link[rel="stylesheet"]').href;
+        
+        // Check if external CSS was loaded by checking computed styles
+        window.addEventListener('load', function() {
+            const testElement = document.getElementById('test-element');
+            const computedStyle = window.getComputedStyle(testElement);
+            
+            if (computedStyle.backgroundColor === 'rgb(144, 238, 144)' || // lightgreen
+                computedStyle.backgroundColor === 'rgb(173, 255, 47)') {  // alternative value for lightgreen
+                document.getElementById('css-success').style.display = 'block';
+                document.getElementById('css-failed').style.display = 'none';
+                console.log('External CSS loaded successfully');
+            } else {
+                console.log('External CSS failed to load or was blocked');
+                console.log('Background color is: ' + computedStyle.backgroundColor);
+            }
+        });
+    </script>
+</body>
+</html>
