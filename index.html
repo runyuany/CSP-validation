@@ -3,68 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSP Validation Tests</title>
+    <title>CSP Testing for Edge MiniCanvas</title>
+    <!-- Modified CSP to match exactly what needs testing: only script-src, no default-src or style-src -->
+    <meta http-equiv="Content-Security-Policy"
+          content="script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123'; report-to csp-endpoint">
+    
+    <!-- External CSS from a different origin -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/runyuany/CSP-validation@db3019b/styles/main.css">
+    
+    <!-- Fallback inline styles that will help identify if external CSS failed to load -->
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            margin: 20px;
         }
-        h1 {
-            color: #333;
-            text-align: center;
+        #test-element {
+            border: 1px solid #ccc;
+            margin: 20px 0;
+            padding: 5px;
+            background-color: #f5f5f5; /* This will be overridden by external CSS if it loads */
         }
-        .description {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+        .test-result {
+            margin-top: 30px;
+            font-weight: bold;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+        .css-loaded {
+            color: green;
+            display: none;
         }
-        li {
-            margin-bottom: 10px;
-        }
-        a {
+        .css-blocked {
+            color: red;
             display: block;
-            padding: 12px 15px;
-            background-color: #e7f3ff;
-            color: #0366d6;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.2s;
-        }
-        a:hover {
-            background-color: #cce5ff;
         }
     </style>
 </head>
 <body>
-    <h1>CSP Validation Test Suite</h1>
-    <div class="description">
-        <p>This site tests how browsers handle Content Security Policy directives with external CSS resources. 
-        Each scenario loads the same HTML but with different CSP headers.</p>
-        <p>Instructions:</p>
-        <ol>
-            <li>Click any scenario below</li>
-            <li>Observe whether the test box turns green (CSS loaded) or remains unstyled (CSS blocked)</li>
-            <li>Open browser console (F12) to view any CSP violation messages</li>
-        </ol>
+    <h1>CSP Testing Page for Edge MiniCanvas</h1>
+    
+    <p>This page tests if CSS from an external domain is blocked when the CSP <strong>doesn't explicitly define style-src or default-src</strong>.</p>
+    
+    <div id="test-element">
+        Testing CSP for CSS - If the external CSS loads successfully, this div will have a purple-blue gradient background.
     </div>
     
-    <ul>
-        <li><a href="scenario-0.html">Scenario 0: No CSP Header</a></li>
-        <li><a href="scenario-1.html">Scenario 1: Bing's script-src (style-src absent)</a></li>
-        <li><a href="scenario-2.html">Scenario 2: default-src 'self', style-src unspecified</a></li>
-        <li><a href="scenario-3.html">Scenario 3: style-src 'self'</a></li>
-        <li><a href="scenario-4.html">Scenario 4: style-src allowing specific external CSS domain</a></li>
-        <li><a href="scenario-5.html">Scenario 5: style-src allowing specific CSS hostname</a></li>
-        <li><a href="scenario-6.html">Scenario 6: style-src 'unsafe-inline' with no external allowances</a></li>
-        <li><a href="scenario-7.html">Scenario 7: Broad style-src https:</a></li>
-        <li><a href="scenario-8.html">Scenario 8: Combined default-src 'self' with style-src exception</a></li>
-    </ul>
+    <div class="test-result css-loaded" id="css-success">
+        ✅ SUCCESS: External CSS was loaded successfully from a different origin.
+    </div>
+    
+    <div class="test-result css-blocked" id="css-failed">
+        ❌ FAILED: External CSS from a different origin was blocked. Check console for CSP violations.
+    </div>
+    
+    <div class="test-information">
+        <h3>Test Information:</h3>
+        <ul>
+            <!-- Update the displayed CSP to match the actual implementation -->
+            <li>CSP Policy: <code>script-src https: 'strict-dynamic' 'report-sample' 'wasm-unsafe-eval' 'nonce-staticTestNonce123'; report-to csp-endpoint</code></li>
+            <li>External CSS: <code id="css-url">https://cdn.jsdelivr.net/gh/runyuany/CSP-validation@db3019b/styles/main.css</code></li>
+            <li>User Agent: <span id="user-agent">(will be displayed by script)</span></li>
+            <li>CSS Verification: <span id="css-details">Pending check...</span></li>
+        </ul>
+    </div>
+    
+    <script nonce="staticTestNonce123">
+        console.log('Inline script with nonce executed successfully.');
+        
+        // Display user agent
+        document.getElementById('user-agent').textContent = navigator.userAgent;
+        
+        // Display actual CSS URL being used
+        document.getElementById('css-url').textContent = document.querySelector('link[rel="stylesheet"]').href;
+        
+        // Enhanced check for external CSS loading
+        window.addEventListener('load', function() {
+            const testElement = document.getElementById('test-element');
+            const computedStyle = window.getComputedStyle(testElement);
+            const detailsElement = document.getElementById('css-details');
+            
+            // Check multiple distinctive properties
+            const hasPurpleBackground = computedStyle.backgroundColor.includes('142') && 
+                                       computedStyle.backgroundColor.includes('68') && 
+                                       computedStyle.backgroundColor.includes('173');
+            const hasDashedBorder = computedStyle.borderStyle === 'dashed';
+            const hasGradient = computedStyle.backgroundImage.includes('linear-gradient');
+            const hasTransform = computedStyle.transform.includes('rotate');
+            
+            if (hasPurpleBackground && hasDashedBorder && hasGradient) {
+                document.getElementById('css-success').style.display = 'block';
+                document.getElementById('css-failed').style.display = 'none';
+                console.log('External CSS loaded successfully - multiple properties verified');
+                detailsElement.innerHTML = '<span style="color:green">✓ VERIFIED</span> - Multiple distinctive CSS properties confirmed';
+            } else {
+                console.log('External CSS failed to load or was blocked');
+                console.log('Background color:', computedStyle.backgroundColor);
+                console.log('Border style:', computedStyle.borderStyle);
+                console.log('Background image:', computedStyle.backgroundImage);
+                console.log('Transform:', computedStyle.transform);
+                
+                detailsElement.innerHTML = '<span style="color:red">✗ FAILED</span> - CSS properties not applied';
+                
+                // Check network errors
+                const links = document.querySelectorAll('link[rel="stylesheet"]');
+                links.forEach(link => {
+                    console.log('CSS link status:', link.href);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
